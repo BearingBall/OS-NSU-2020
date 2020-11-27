@@ -25,6 +25,10 @@ int main(int argc, char *argv[])
 	char* buffer = malloc(BUFFER_SIZE*sizeof(char));
 	if (buffer == NULL)
 	{
+		if (close(fb)!= 0)
+		{
+			printf("close error\n");
+		}
 		printf("Memory error\n");
 		return 0;
 	}
@@ -32,6 +36,10 @@ int main(int argc, char *argv[])
 	int* table = malloc(TABLE_SIZE*sizeof(int));
 	if (table == NULL)
 	{
+		if (close(fb) !=0)
+		{
+			printf("close error\n");
+		}
 		printf("Memory error\n");
 		free(buffer);
 		return 0;
@@ -39,14 +47,18 @@ int main(int argc, char *argv[])
 	table[0] = 0;
 	while(1)
 	{
-	int readSize = read(fb, buffer, BUFFER_SIZE);
-	if (readSize == -1 && errno != EINTR)
-	{
-		perror("read error \n");
-		free(buffer);
-		free(table);
-		return 0;
-	}
+		int readSize = read(fb, buffer, BUFFER_SIZE);
+		if (readSize == -1 && errno != EINTR)
+		{
+			if (close(fb) != 0)
+			{
+				printf("close error\n");
+			}
+			perror("read error \n");
+			free(buffer);
+			free(table);
+			return 0;
+		}
 
 		for(int i=0;i<readSize;++i)
 		{
@@ -78,58 +90,59 @@ int stringNumber =0;
 char* buffer2 = malloc(table[tableCurret]*sizeof(char)); 
 if (buffer2 == NULL)
 {
-printf("Memory error\n");
-return 0;
+	printf("Memory error\n");
+	return 0;
 } 
 lseek(fb,0,SEEK_SET);
 read(fb,buffer2,table[tableCurret-1]);
 
 
 fd_set rfds;
-    struct timeval tv;
-    int retval;
+struct timeval tv;
+int retval;
 
 FD_ZERO(&rfds);
 FD_SET(0, &rfds);
 tv.tv_sec = 5;
-    tv.tv_usec = 0;
-    printf("You have 5 second to put number or programm will be closed\n");
-    retval = select(1, &rfds, NULL, NULL, &tv);
+tv.tv_usec = 0;
+int maxFb = 0;
+printf("You have 5 second to put number or programm will be closed\n");
+retval = select(maxFb + 1, &rfds, NULL, NULL, &tv);
 
 if (retval)
 {
-while(1)
-{
-scanf("%d",&stringNumber);
-if (stringNumber == 0)
-{
-break;
-}
-	if ((stringNumber>=0)&&(stringNumber<tableCurret))
+	while(1)
 	{
-		char c;
-		for(int i=table[stringNumber-1];i<table[stringNumber];++i)
+		scanf("%d",&stringNumber);
+		if (stringNumber == 0)
 		{
-		printf("%c",buffer2[i]);
+			break;
+		}
+		if ((stringNumber>=0)&&(stringNumber<tableCurret))
+		{
+			char c;
+			for(int i=table[stringNumber-1];i<table[stringNumber];++i)
+			{
+				printf("%c",buffer2[i]);
+			}
+		}
+		else
+		{
+			printf("Valid data from 0 to %d\n",tableCurret);
 		}
 	}
-	else
-	{
-	printf("Valid data from 0 to %d\n",tableCurret);
-	}
 }
-}
-    else
+else
 {
-	 printf("Time is out\nFull file:\n");
+	printf("Time is out\nFull file:\n");
 	for(int j=0;j<tableCurret;++j)
 	{
 		char c;
 		for(int i =table[j];i<table[j+1];++i)
 		{
-		lseek(fb,i,SEEK_SET);
-		read(fb,&c,1);
-		printf("%c",c);
+			lseek(fb,i,SEEK_SET);
+			read(fb,&c,1);
+			printf("%c",c);
 		}
 	}
 }

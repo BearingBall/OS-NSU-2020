@@ -24,6 +24,10 @@ int main(int argc, char *argv[])
 	char* buffer = malloc(BUFFER_SIZE*sizeof(char));
 	if (buffer == NULL)
 	{
+		if (close(fb) != 0)
+		{
+			printf("file error \n");
+		}
 		printf("Memory error\n");
 		return 0;
 	}
@@ -31,6 +35,10 @@ int main(int argc, char *argv[])
 	int* table = malloc(TABLE_SIZE*sizeof(int));
 	if (table == NULL)
 	{
+		if (close(fb) != 0)
+		{
+			printf("file error \n");
+		}
 		printf("Memory error\n");
 		free(buffer);
 		return 0;
@@ -41,6 +49,10 @@ int main(int argc, char *argv[])
 		int readSize = read(fb, buffer, BUFFER_SIZE); 
 		if (readSize == -1 && errno != EINTR)
 		{
+			if (close(fb) != 0)
+			{
+				printf("file error \n");
+			}
 			perror("read error \n");
 			free(buffer);
 			free(table);
@@ -61,7 +73,7 @@ int main(int argc, char *argv[])
 				}
 			}
 		}
-		if (readSize != BUFFER_SIZE)
+		if (readSize != BUFFER_SIZE && readSize != -1)
 		{
 			break;
 		}
