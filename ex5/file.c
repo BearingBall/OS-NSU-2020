@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include "stdio.h"
 #include <unistd.h>
+#include <errno.h>
 #define BUFFER_SIZE 100
 #define TABLE_SIZE 100
 
@@ -34,10 +35,17 @@ int main(int argc, char *argv[])
 		free(buffer);
 		return 0;
 	}
-	table[0] = 0;
-	while(1)
-	{
-	int readSize = read(fb, buffer, BUFFER_SIZE);
+	table[0] = 0; 
+	while(1) 
+	{ 
+		int readSize = read(fb, buffer, BUFFER_SIZE); 
+		if (readSize == -1 && errno != EINTR)
+		{
+			perror("read error \n");
+			free(buffer);
+			free(table);
+			return 0;
+		}
 		for(int i=0;i<readSize;++i)
 		{
 			if (buffer[i]=='\n')
@@ -73,7 +81,6 @@ if (buffer2 == NULL)
         }
 lseek(fb,0,SEEK_SET); 
 read(fb,buffer2,table[tableCurret-1]);
-
 int stringNumber =0;
 while(1)
 {

@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include "stdio.h"
 #include <unistd.h>
+#include <errno.h>
 #define BUFFER_SIZE 100
 #define TABLE_SIZE 100
 
@@ -39,6 +40,14 @@ int main(int argc, char *argv[])
 	while(1)
 	{
 	int readSize = read(fb, buffer, BUFFER_SIZE);
+	if (readSize == -1 && errno != EINTR)
+	{
+		perror("read error \n");
+		free(buffer);
+		free(table);
+		return 0;
+	}
+
 		for(int i=0;i<readSize;++i)
 		{
 			if (buffer[i]=='\n')

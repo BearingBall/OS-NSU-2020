@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include "stdio.h"
 #include <unistd.h>
+#include <errno.h>
 #define BUFFER_SIZE 100
 #define TABLE_SIZE 100
 
