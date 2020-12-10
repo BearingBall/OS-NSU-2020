@@ -102,7 +102,10 @@ else
 	}
 }
 munmap(src,fileSize);
-close(fb);
 free(table);
+if (close(fb) != 0)
+{
+	perror(errno);
+}
 return 0;
 }
